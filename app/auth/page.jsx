@@ -2,7 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/services/supabaseclient';
+import { supabase } from '../../services/supabaseclient'
 
 export default function login() {
 // used for SIGN IN with Google Authenticator

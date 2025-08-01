@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function provider() {
   
-  const createNewUser = async (email, password) => {
+//   const createNewUser = async (email, password) => {
     return (
     <div>
 

@@ -1,0 +1,21 @@
+---- creating next app: ----
+command : npx create-next-app@latest
+
+Details : and use following setting 
+• What is your project named? ... vivecruit
+• Would you like to use TypeScript? ... No / Yes
+• Would you like to use ESLint? ... No / Yes
+• Would you like to use Tailwind CSS? ... No / Yes
+• Would you
+like your code inside a 'src/' directory? ... No / Yes
+No / Yes
+• Would you like to use Turbopack for
+to use Turbopack for next de )...No / Yes
+• Would you like to customize the import alias ('@/*™ by default)? ... No / Yes Creating a new Next.js app in /Users/vivek/N/Projects/Vivecruit/vivecruit.
+
+
+--- Then change react and react-dom versions to 18.0.0  because some features are not available in 19 versions
+
+--- for ui i use shadcn which is based on tailwind css:
+  to install: npx shadcn@latest init
+  

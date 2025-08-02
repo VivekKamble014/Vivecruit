@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 export const metadata = { // optimize and add seo to out application 
   title: "Vivecruit", //  title of the application
   keywords: "AI, Recruitment, Hiring, Job Search, Vivecruit", // keywords for SEO
-  // authors: [{ name: "Vivecruit Team", url: "https://vivecruit.com" }], // author information
+  authors: [{ name: "Vivecruit Team", url: "https://vivecruit-two.vercel.app" }], // author information
   creator: "Vivecruit Team", // creator of the application
   description: "Vivecruit - Your AI-Powered Recruitment Assistant",// description for SEO
 };

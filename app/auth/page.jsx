@@ -6,9 +6,14 @@ import { supabase } from '../../services/supabaseClient.jsx'
 
 export default function login() {
 // used for SIGN IN with Google Authenticator
+const redirectUrl = process.env.NEXT_PUBLIC_SUPABASE_REDIRECT_URL;
 const signInWithGoogle =async() => {
   const {error}= await supabase.auth.signInWithOAuth({
-    provider: 'google'
+    provider: 'google',
+    options: {
+      redirectTo: redirectUrl  // ✅ Redirect after login
+    }
+    
     
     
   });
@@ -20,8 +25,6 @@ const signInWithGoogle =async() => {
   console.log("Google Sign-In clicked");
   
 };
-
-
   return (
     <div className='flex flex-col items-center justify-center h-screen '>
       <div className='flex flex-col items-center border rounded-2xl p-8'>

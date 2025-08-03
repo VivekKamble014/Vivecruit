@@ -13,20 +13,47 @@ import { InterviewType } from '../../../../../services/Constants'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default function FormContainer() {
+import { useState, useEffect } from 'react';
+
+export default function FormContainer({handleInputChange}) {
+
+    const [interviewType, setInterviewType] = useState([]);
+
+    useEffect(() => {
+        if(interviewType){
+            handleInputChange('type', interviewType);
+        }
+
+    },[interviewType]);
+
+const AddInterviewType = (type) => {
+  const data = interviewType.includes(type);
+
+    if (!data) {
+        setInterviewType(prevTypes => [...prevTypes, type]);
+    } else {
+        const result= interviewType.filter(item => item !== type);
+        setInterviewType(result);
+    }
+};
   return (
     <div>
     <div className='p-5 bg-white'>
         <h2 className='text-sm font-medium'>Job Position</h2>
-      <Input placeholder="e.g Full Stack Developer" className='mt-2'/>
+      <Input placeholder="e.g Full Stack Developer" className='mt-2'
+
+      onChange={(event)=>handleInputChange('jobPosition', event.target.value)}
+      />
     </div>
     <div className='p-5 bg-white'>
         <h2 className='text-sm font-medium'>Job Description</h2>
-     <Textarea placeholder="Enter Job Decription in detail" className="h-[200px] mt-2"/>
+     <Textarea placeholder="Enter Job Decription in detail" className="h-[200px] mt-2"
+        onChange={(event)=>handleInputChange('jobDescription', event.target.value)}
+     />
     </div>
     <div className='p-5 bg-white'>
         <h2 className='text-sm'>Interview Duration </h2>
-        <Select>
+        <Select onValueChange={(value) => handleInputChange('duration', value)}>
   <SelectTrigger className="w-full mt-2">
     <SelectValue placeholder="Select Duration" />
   </SelectTrigger>
@@ -45,8 +72,13 @@ export default function FormContainer() {
         <h2 className='text-sm font-medium'>Interview Type</h2>
         <div className='flex flex-wrap gap-3 mt-2'>
             {InterviewType.map((type,index) => (
-                <div key={index} className='flex gap-2 p-1 px-2 bg-violet-100 items-center  rounded-2xl cursor-pointer
-                hover:bg-violet-200'>
+                <div key={index} 
+               className={`flex gap-2 p-1 px-2 bg-violet-100 items-center  rounded-2xl cursor-pointer
+                hover:bg-violet-200
+                ${interviewType.includes(type.title) &&'bg-violet-300 text-black'}
+                `}
+                onClick={() => AddInterviewType(type.title)}
+                >
                 <type.icon/>
                 <span>{type.title}</span>
 

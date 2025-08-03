@@ -21,3 +21,5 @@ to use Turbopack for next de )...No / Yes
   
 
   Lucied for icons 
+
+  openrouter.ai : https://openrouter.ai/

@@ -19,3 +19,5 @@ to use Turbopack for next de )...No / Yes
 --- for ui i use shadcn which is based on tailwind css:
   to install: npx shadcn@latest init
   
+
+  Lucied for icons 

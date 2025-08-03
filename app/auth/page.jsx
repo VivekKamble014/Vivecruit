@@ -9,6 +9,8 @@ export default function login() {
 const signInWithGoogle =async() => {
   const {error}= await supabase.auth.signInWithOAuth({
     provider: 'google'
+    
+    
   });
   if (error) {
     console.error("Error signing in with Google:", error.message);
@@ -16,6 +18,7 @@ const signInWithGoogle =async() => {
   }
   // Implement Google Sign-In logic here
   console.log("Google Sign-In clicked");
+  
 };
 
 

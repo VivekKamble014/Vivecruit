@@ -22,6 +22,7 @@ import {
 
 
 
+
 export const SideBarOptions = [
 {
     name:"Dashboard",
@@ -121,3 +122,30 @@ export const InterviewType = [
     icon: ClipboardListIcon,
   },
 ];
+
+export const QUESTIONS_PROMPT = `You are an expert technical interviewer.
+Based on the following inputs, generate a well-structured list of high-quality interview questions:
+
+Job Title: {jobTitle}
+Job Description: {jobDescription}
+Interview Duration: {duration}
+Interview Type: {type}
+
+Your task:
+1. Analyze the job description to identify key responsibilities, required skills, and expected experience.
+2. Generate a list of interview questions that match the given duration.
+3. Adjust the number and depth of questions based on interview duration.
+4. Ensure the tone and structure fit a real-life {type} interview.
+
+Format:
+Return your response as a JSON array:
+interviewQuestions = [
+  {
+    question: "Your question here",
+    type: "Technical / Behavioral / Experience / Problem Solving / Leadership"
+  },
+  ...
+]
+
+The goal is to create a structured, relevant, and time-optimized interview plan for a {jobTitle} role.
+`;

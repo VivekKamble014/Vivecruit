@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 
 import { useState, useEffect } from 'react';
 
-export default function FormContainer({handleInputChange}) {
+export default function FormContainer({handleInputChange,GoToNext}) {
 
     const [interviewType, setInterviewType] = useState([]);
 
@@ -86,7 +86,7 @@ const AddInterviewType = (type) => {
             ))}
         </div>
      
-    <div className='mt-7 flex justify-end'>
+    <div className='mt-7 flex justify-end' onClick={()=>GoToNext()}>
     <Button className='text-[14px] font-bold'>Genrate Questions <ArrowRight/></Button>
     </div>
     </div>

@@ -3,7 +3,11 @@ import React,{useState} from 'react'
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Progress } from "@/components/ui/progress"
-import FormContainer from './components/FormContainer';
+import FormContainer from './_components/FormContainer';
+import QuestionList from './_components/QuestionList';
+
+import { toast } from 'sonner';
+
 export default function CreateInterview() {
     const router=useRouter();
     const [step,setStep]=useState(1);
@@ -16,6 +20,14 @@ export default function CreateInterview() {
         }));
         console.log(formData);
     }
+
+    const onGoToNext=()=>{
+        if(!formData?.jobPosition || !formData?.jobDescription || !formData?.duration || !formData?.type){
+            toast('Please Enter All Deatails')
+            return ;
+        }
+        setStep(step+1)
+    }
   return (
     <div className='px-10 md:px-24 lg:px-44 xl:px-56 '>
     <div className='flex gap-3 items-conter'>
@@ -23,9 +35,12 @@ export default function CreateInterview() {
         <h2 className='font-bold text-2xl '>Create New Interview</h2>
     </div>
         <Progress value={step * 33.33} className='my-5'/>
+      {step == 1? 
       <FormContainer
-      handleInputChange={handleInputChange} />  
-      
+      handleInputChange={handleInputChange}
+      GoToNext={()=> onGoToNext()} />  
+      :step==2? <QuestionList formData={formData}/>: null
+      }
     </div>
   )
 }

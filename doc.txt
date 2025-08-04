@@ -22,4 +22,5 @@ to use Turbopack for next de )...No / Yes
 
   Lucied for icons 
 
-  openrouter.ai : https://openrouter.ai/
+  openrouter.ai : https://openrouter.ai/ 
+  I use Open AI SDK to implement Open AI and Generating Questions

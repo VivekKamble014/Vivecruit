@@ -11,10 +11,10 @@ const signInWithGoogle =async() => {
   const {error}= await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: redirectUrl  // ✅ Redirect after login
+      redirectTo: redirectUrl
+  
+
     }
-    
-    
     
   });
   if (error) {

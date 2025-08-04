@@ -3,9 +3,6 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 export async function POST(request){
-    // # gets API Key from environment variable 
-    // OPENAI_API_KEY
-
 const {jobPosition, jobDescription, duration, type} = await request.json();
 
 const FINAL_QUESTIONS_PROMPT = QUESTIONS_PROMPT.replace("{jobTitle}", jobPosition)
@@ -15,14 +12,10 @@ const FINAL_QUESTIONS_PROMPT = QUESTIONS_PROMPT.replace("{jobTitle}", jobPositio
 console.log(FINAL_QUESTIONS_PROMPT);
 
 try{
-// const openai = OpenAI(
-//   baseURL = "https://openrouter.ai/api/v1",
-//   api_key = process.env.OPENROUTER_API_KET,
-// )
 
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
-  apiKey:"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", 
+  apiKey:'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', 
   
 });
 
@@ -30,6 +23,11 @@ const completion = await openai.chat.completions.create({
     // model: "google/gemini-2.5-pro-exp-03-25",
   model: 'openai/gpt-4o',
     max_tokens: 2000,
+    temperature: 0.7,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    
     messages: [
         {
         role: "user",
@@ -39,8 +37,11 @@ const completion = await openai.chat.completions.create({
     ],
 })
 console.log(completion.choices[0].message)
+
 return NextResponse.json(completion.choices[0].message);
 }catch(e){
     console.log(e);
     return NextResponse.json(e)
 }}
+
+

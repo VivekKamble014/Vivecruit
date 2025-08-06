@@ -15,6 +15,7 @@ export default function Interview() {
     console.log(interview_Id);
     const [interviewData,setInterviewData]=useState();
     const [userName,setUserName]=useState();
+    const [userEmail,setUserEmail]=useState();
     const [loading,setLoading]=useState(false);
 
     const {interviewInfo, setInterviewInfo}=useContext(InterviewDataContext);
@@ -57,6 +58,7 @@ setLoading(false);
 console.log(interviews[0]);
 setInterviewInfo({
     userName:userName,
+    userEmail:userEmail,
 interviewData: interviews[0]
 });
 
@@ -86,6 +88,16 @@ setLoading(false);
   onChange={(e) => setUserName(e.target.value)}
 />
     </div>
+<div className='w-full '>
+        <h2 className=''>Enter Your Email</h2>
+      <Input
+  placeholder="eg. vivek@gmail.com"
+  className='mt-2'
+  value={userEmail}
+  onChange={(e) => setUserEmail(e.target.value)}
+/>
+    </div>
+
     <div className="p-4 bg-violet-100 flex items-start gap-4 rounded-lg mt-4 max-w-xl w-full mx-auto">
   <Info className="text-primary mt-1" />
   <div>

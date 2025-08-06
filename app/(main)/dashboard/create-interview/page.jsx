@@ -7,12 +7,15 @@ import FormContainer from './_components/FormContainer';
 import QuestionList from './_components/QuestionList';
 
 import { toast } from 'sonner';
+import InterviewLink from './_components/InterviewLink';
 
 export default function CreateInterview() {
     const router=useRouter();
     const [step,setStep]=useState(1);
 
     const [formData, setFormData]= useState({});
+const [interviewId,setInterviewId]=useState();
+
     const handleInputChange=(field,value)=>{
         setFormData(prevData =>({
             ...prevData,
@@ -28,6 +31,12 @@ export default function CreateInterview() {
         }
         setStep(step+1)
     }
+
+const onCreateLink=(interview_Id)=>{
+setInterviewId(interview_Id);
+setStep(step+1);
+}
+
   return (
     <div className='px-10 md:px-24 lg:px-44 xl:px-56 '>
     <div className='flex gap-3 items-conter'>
@@ -39,7 +48,9 @@ export default function CreateInterview() {
       <FormContainer
       handleInputChange={handleInputChange}
       GoToNext={()=> onGoToNext()} />  
-      :step==2? <QuestionList formData={formData}/>: null
+      :step==2? <QuestionList formData={formData} onCreateLink={(interview_Id)=>onCreateLink(interview_Id)}/>: step==3?<InterviewLink interview_Id={interviewId}
+        formData={formData}
+      /> : null
       }
     </div>
   )

@@ -20,6 +20,9 @@ export const metadata = { // optimize and add seo to out application
   authors: [{ name: "Vivecruit Team", url: "https://vivecruit-two.vercel.app" }], // author information
   creator: "Vivecruit Team", // creator of the application
   description: "Vivecruit - Your AI-Powered Recruitment Assistant",// description for SEO
+  icons: {
+    icon: "/logo.png", // OR "/logo.png", OR "/favicon.svg"
+  },
 };
 
 export default function RootLayout({ children }) {

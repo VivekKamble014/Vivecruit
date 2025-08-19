@@ -6,13 +6,15 @@ import Provider from "./provider";
 import Link from "next/link";
 import { motion } from 'framer-motion';
 import { useEffect ,useState} from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import {
   Bot,
   Code,
   Video,
   BarChart2,
   ShieldCheck,
-  FilePlus, Users, BrainCog, BarChart3
+  FilePlus, Users, BrainCog, BarChart3, Settings
 } from "lucide-react";
 import Navbar from "./_components/navbar/Navbar";
 
@@ -27,6 +29,14 @@ const images = [
 export default function Home({ children }) {
 
   const [current, setCurrent] = useState(0);
+  const [adminClickCount, setAdminClickCount] = useState(0);
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [contactLoading, setContactLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -34,6 +44,62 @@ export default function Home({ children }) {
     }, 3000); // Change slide every 3 seconds
     return () => clearInterval(interval);
   }, []);
+
+  const handleAdminClick = () => {
+    setAdminClickCount(prev => {
+      const newCount = prev + 1;
+      if (newCount === 5) {
+        router.push('/admin/login');
+        return 0;
+      }
+      return newCount;
+    });
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    setContactLoading(true);
+    
+    try {
+      console.log('Submitting contact form:', contactForm);
+      
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactForm.name,
+          email: contactForm.email,
+          subject: 'Contact Form Submission',
+          message: contactForm.message
+        }),
+      });
+
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (data.success) {
+        toast.success('Message sent successfully!');
+        setContactForm({ name: '', email: '', message: '' });
+      } else {
+        toast.error(data.message || 'Failed to send message');
+        console.error('API error:', data);
+      }
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setContactLoading(false);
+    }
+  };
 
 const steps = [
   {
@@ -78,7 +144,16 @@ const item = {
     <Navbar/>
     <div className="flex flex-col min-h-screen mt-15">
 
-      <header className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-20 px-6 min-h-screen flex flex-col justify-center">
+      <header className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-20 px-6 min-h-screen flex flex-col justify-center relative">
+  {/* Admin Button */}
+  <button
+    onClick={handleAdminClick}
+    className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+    title="Admin Access (Click 5 times)"
+  >
+    <Settings className="h-5 w-5 text-white" />
+  </button>
+  
   <div className="grid md:grid-cols-2 gap-8 items-center">
     
     {/* Left Side - Text and Buttons */}
@@ -437,27 +512,37 @@ const item = {
     {/* Contact Form */}
     <div>
       <h4 className="text-lg font-bold mb-4 text-violet-700">Contact Us</h4>
-      <form className="space-y-3">
+      <form onSubmit={handleContactSubmit} className="space-y-3">
         <input
           type="text"
           placeholder="Your Name"
+          value={contactForm.name}
+          onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+          required
         />
         <input
           type="email"
           placeholder="Your Email"
+          value={contactForm.email}
+          onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+          required
         />
         <textarea
           placeholder="Your Message"
           rows="3"
+          value={contactForm.message}
+          onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+          required
         />
         <button
           type="submit"
-          className="w-full bg-violet-700 text-white py-2 px-4 rounded-md hover:bg-violet-800 transition duration-300"
+          disabled={contactLoading}
+          className="w-full bg-violet-700 text-white py-2 px-4 rounded-md hover:bg-violet-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Send Message
+          {contactLoading ? 'Sending...' : 'Send Message'}
         </button>
       </form>
     </div>
@@ -472,6 +557,14 @@ const item = {
   {/* Bottom Line */}
   <div className="mt-10 border-t pt-4 text-center text-xs text-gray-500">
     © {new Date().getFullYear()} Vivecruit. All rights reserved. | Built by Vivek Kamble
+    <div className="mt-2">
+      <Link 
+        href="/admin/login" 
+        className="text-violet-600 hover:text-violet-800 underline"
+      >
+        Admin Panel
+      </Link>
+    </div>
   </div>
 </footer>
     </div>

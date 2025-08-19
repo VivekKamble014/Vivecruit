@@ -7,7 +7,6 @@ import {
   Plus, 
   Calendar, 
   Users, 
-  Settings, 
   LogOut, 
   User,
   CreditCard,
@@ -19,9 +18,11 @@ import Image from 'next/image';
 import { supabase } from '@/services/supabaseClient';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/app/provider';
 
 export default function AppSidebar({ children }) {
   const router = useRouter();
+  const { user } = useUser();
 
   const handleLogout = async () => {
     try {
@@ -98,24 +99,6 @@ export default function AppSidebar({ children }) {
             
             <SidebarMenuItem>
               <SidebarMenuButton asChild className="p-5">
-                <Link href="/profile">
-                  <User className="text-[16px] text-gray-600" />
-                  <span className="text-[16px] text-gray-600">Profile</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild className="p-5">
-                <Link href="/settings">
-                  <Settings className="text-[16px] text-gray-600" />
-                  <span className="text-[16px] text-gray-600">Settings</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild className="p-5">
                 <Link href="/billing">
                   <CreditCard className="text-[16px] text-gray-600" />
                   <span className="text-[16px] text-gray-600">Billing</span>
@@ -127,19 +110,29 @@ export default function AppSidebar({ children }) {
         
         <SidebarFooter className="p-4 border-t">
           <div className="flex flex-col gap-2">
-            <SidebarMenuButton asChild className="p-3 hover:bg-gray-100 rounded-lg">
-              <Link href="/profile">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center">
-                    <User className="text-white text-sm" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-900">User Profile</span>
-                    <span className="text-xs text-gray-500">View your profile</span>
-                  </div>
+            <div className="flex items-center gap-3 p-3">
+              {user?.picture ? (
+                <Image 
+                  src={user.picture} 
+                  alt="Profile" 
+                  width={32} 
+                  height={32} 
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center">
+                  <User className="text-white text-sm" />
                 </div>
-              </Link>
-            </SidebarMenuButton>
+              )}
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-900">
+                  {user?.name || user?.email || 'User'}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {user?.email || 'user@example.com'}
+                </span>
+              </div>
+            </div>
             
             <SidebarMenuButton 
               onClick={handleLogout}

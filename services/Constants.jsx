@@ -135,14 +135,19 @@ Analyze the job description to identify key responsibilities, required skills, a
 Generate a list of interview questions depends on interview duration
 Adjust the number and depth of questions to match the interview duration.
 Ensure the questions match the tone and structure of a real-life {{type}} interview.
-🍀 Format your response in JSON format with array list of questions.
-format: interviewQuestions=[
-{
-question:",
-type:'Technical/Behavioral/Experince/Problem Solving/Leaseship'
-},{
-...
-}]
+🍀 Format your response in proper JSON format with an array of questions.
+format: {
+  "interviewQuestions": [
+    {
+      "question": "Your question here?",
+      "type": "Technical/Behavioral/Experience/Problem Solving/Leadership"
+    },
+    {
+      "question": "Another question here?",
+      "type": "Technical/Behavioral/Experience/Problem Solving/Leadership"
+    }
+  ]
+}
 🎯 The goal is to create a structured, relevant, and time-optimized interview plan for a {{jobTitle}} role.`
 
 export const FEEDBACK_PROMPT=`{{conversation}}  

@@ -4,6 +4,8 @@ import { supabase } from '@/services/supabaseClient';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/app/provider';
+import { useSearchParams } from 'next/navigation';
 import { 
   Check, 
   Star, 
@@ -20,46 +22,46 @@ import {
   ArrowRight,
   TrendingUp,
   Award,
-  Sparkles
+  Sparkles,
+  IndianRupee
 } from 'lucide-react';
 import { VivecruitTextLoader } from '@/components/ui/vivecruit-loader';
 
 export default function BillingPage() {
-  const [user, setUser] = useState(null);
+  const { user } = useUser();
   const [loading, setLoading] = useState(true);
-  const [currentPlan, setCurrentPlan] = useState('Base');
-  const [billingCycle, setBillingCycle] = useState('monthly');
+  const [currentPlan, setCurrentPlan] = useState('Free');
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) {
-          console.error('Error fetching user:', error);
-          toast.error('Error loading user data');
-          return;
-        }
-        setUser(user);
-      } catch (error) {
-        console.error('Error:', error);
-        toast.error('Error loading user data');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (user) {
+      setLoading(false);
+      // Check for payment status in URL params
+      const status = searchParams.get('status');
+      const plan = searchParams.get('plan');
+      const error = searchParams.get('error');
 
-    getUser();
-  }, []);
+      if (status === 'success' && plan) {
+        toast.success(`Successfully subscribed to ${plan} plan!`);
+        setCurrentPlan(plan);
+        // Refresh user data to get updated plan
+        window.location.href = '/billing';
+      } else if (status === 'failed') {
+        toast.error(`Payment failed: ${error || 'Unknown error'}`);
+      }
+    }
+  }, [user, searchParams]);
 
   const plans = [
     {
-      name: 'Base',
+      name: 'Free',
       icon: <Zap className="h-8 w-8" />,
-      color: 'from-blue-500 to-blue-600',
-      price: billingCycle === 'monthly' ? 29 : 290,
-      originalPrice: billingCycle === 'monthly' ? 39 : 390,
+      color: 'from-green-500 to-green-600',
+      price: 0,
+      originalPrice: 0,
       features: [
-        'Up to 10 interviews per month',
+        'Create only 1 interview',
         'Basic AI interviewer',
         'Standard question templates',
         'Email support',
@@ -67,14 +69,15 @@ export default function BillingPage() {
         'Interview scheduling'
       ],
       popular: false,
-      recommended: false
+      recommended: false,
+      interviewsLimit: 1
     },
     {
       name: 'Silver',
       icon: <Star className="h-8 w-8" />,
       color: 'from-gray-500 to-gray-600',
-      price: billingCycle === 'monthly' ? 79 : 790,
-      originalPrice: billingCycle === 'monthly' ? 99 : 990,
+      price: 1999,
+      originalPrice: 2499,
       features: [
         'Up to 50 interviews per month',
         'Advanced AI interviewer',
@@ -86,14 +89,15 @@ export default function BillingPage() {
         'Export reports'
       ],
       popular: true,
-      recommended: false
+      recommended: false,
+      interviewsLimit: 50
     },
     {
       name: 'Gold',
       icon: <Crown className="h-8 w-8" />,
       color: 'from-yellow-500 to-yellow-600',
-      price: billingCycle === 'monthly' ? 149 : 1490,
-      originalPrice: billingCycle === 'monthly' ? 199 : 1990,
+      price: 3999,
+      originalPrice: 4999,
       features: [
         'Up to 200 interviews per month',
         'Premium AI interviewer',
@@ -108,14 +112,15 @@ export default function BillingPage() {
         'API access'
       ],
       popular: false,
-      recommended: true
+      recommended: true,
+      interviewsLimit: 200
     },
     {
       name: 'Platinum',
       icon: <Diamond className="h-8 w-8" />,
       color: 'from-purple-500 to-purple-600',
-      price: billingCycle === 'monthly' ? 299 : 2990,
-      originalPrice: billingCycle === 'monthly' ? 399 : 3990,
+      price: 6999,
+      originalPrice: 8999,
       features: [
         'Unlimited interviews',
         'Enterprise AI interviewer',
@@ -133,20 +138,117 @@ export default function BillingPage() {
         'Dedicated account manager'
       ],
       popular: false,
-      recommended: false
+      recommended: false,
+      interviewsLimit: 'Unlimited'
     }
   ];
 
-  const handleSubscribe = (planName) => {
-    toast.success(`Subscribing to ${planName} plan...`);
-    // Here you would integrate with your payment processor
-    console.log(`Subscribing to ${planName} plan`);
+  const loadPayUScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://securegw.payumoney.com/checkout/assets/lib/custom.js';
+      script.onload = () => resolve();
+      script.onerror = () => resolve();
+      document.body.appendChild(script);
+    });
   };
 
-  const handleUpgrade = (planName) => {
-    toast.success(`Upgrading to ${planName} plan...`);
-    // Here you would integrate with your payment processor
-    console.log(`Upgrading to ${planName} plan`);
+  const handleSubscribe = async (planName) => {
+    if (planName === 'Free') {
+      toast.success('You are already on the Free plan!');
+      return;
+    }
+
+    setProcessingPayment(true);
+    try {
+      // Load PayU script
+      await loadPayUScript();
+
+      // Create order on your backend
+      const response = await fetch('/api/create-payu-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planName,
+          amount: plans.find(p => p.name === planName)?.price || 0,
+          userEmail: user?.email,
+          userId: user?.id,
+          userName: user?.name || ''
+        }),
+      });
+
+      const orderData = await response.json();
+
+      if (!orderData.success) {
+        throw new Error(orderData.message || 'Failed to create order');
+      }
+
+      // Initialize PayU
+      const payUConfig = {
+        key: process.env.NEXT_PUBLIC_PAYU_KEY,
+        salt: process.env.NEXT_PUBLIC_PAYU_SALT,
+        txnid: orderData.txnid,
+        amount: orderData.amount,
+        productinfo: `${planName} Plan Subscription`,
+        firstname: user?.name || 'User',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        surl: `${window.location.origin}/api/payu-success`,
+        furl: `${window.location.origin}/api/payu-failure`,
+        hash: orderData.hash,
+        service_provider: 'payu_paisa',
+        udf1: planName,
+        udf2: user?.email,
+        udf3: user?.id
+      };
+
+      // Open PayU payment form
+      const payUForm = document.createElement('form');
+      payUForm.method = 'POST';
+      payUForm.action = 'https://securegw.payumoney.com/checkout/post';
+      payUForm.target = '_blank';
+
+      Object.keys(payUConfig).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = payUConfig[key];
+        payUForm.appendChild(input);
+      });
+
+      document.body.appendChild(payUForm);
+      payUForm.submit();
+      document.body.removeChild(payUForm);
+
+      // Show success message
+      toast.success('Payment window opened. Please complete the payment.');
+      
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Failed to process payment');
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const updateUserPlan = async (planName) => {
+    try {
+      const { error } = await supabase
+        .from('Users')
+        .update({ 
+          plan: planName,
+          plan_updated_at: new Date().toISOString()
+        })
+        .eq('email', user?.email);
+
+      if (error) {
+        console.error('Error updating user plan:', error);
+      }
+    } catch (error) {
+      console.error('Error updating user plan:', error);
+    }
   };
 
   if (loading) {
@@ -166,31 +268,6 @@ export default function BillingPage() {
           <p className="text-xl text-gray-600 mb-8">
             Select the perfect plan for your hiring needs
           </p>
-          
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <span className={`text-sm font-medium ${billingCycle === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
-              Monthly
-            </span>
-            <button
-              onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-violet-600"
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  billingCycle === 'yearly' ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-            <span className={`text-sm font-medium ${billingCycle === 'yearly' ? 'text-gray-900' : 'text-gray-500'}`}>
-              Yearly
-            </span>
-            {billingCycle === 'yearly' && (
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                Save 25%
-              </span>
-            )}
-          </div>
         </div>
 
         {/* Current Plan Status */}
@@ -246,14 +323,23 @@ export default function BillingPage() {
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900">{plan.name}</CardTitle>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
-                  <span className="text-gray-500">/ {billingCycle === 'monthly' ? 'month' : 'year'}</span>
+                  {plan.price === 0 ? (
+                    <span className="text-3xl font-bold text-gray-900">Free</span>
+                  ) : (
+                    <>
+                      <IndianRupee className="h-6 w-6 text-gray-900" />
+                      <span className="text-3xl font-bold text-gray-900">{plan.price.toLocaleString()}</span>
+                    </>
+                  )}
                 </div>
                 {plan.originalPrice > plan.price && (
                   <p className="text-sm text-gray-500 line-through">
-                    ${plan.originalPrice} / {billingCycle === 'monthly' ? 'month' : 'year'}
+                    ₹{plan.originalPrice.toLocaleString()}
                   </p>
                 )}
+                <p className="text-sm text-gray-500">
+                  {plan.interviewsLimit === 'Unlimited' ? 'Unlimited interviews' : `${plan.interviewsLimit} interviews/month`}
+                </p>
               </CardHeader>
               
               <CardContent className="space-y-4">
@@ -276,17 +362,29 @@ export default function BillingPage() {
                     </Button>
                   ) : (
                     <Button 
-                      onClick={() => currentPlan === 'None' ? handleSubscribe(plan.name) : handleUpgrade(plan.name)}
+                      onClick={() => handleSubscribe(plan.name)}
+                      disabled={processingPayment}
                       className={`w-full ${
                         plan.popular 
                           ? 'bg-violet-600 hover:bg-violet-700' 
                           : plan.recommended 
                           ? 'bg-yellow-600 hover:bg-yellow-700'
+                          : plan.price === 0
+                          ? 'bg-green-600 hover:bg-green-700'
                           : 'bg-gray-900 hover:bg-gray-800'
                       }`}
                     >
-                      {currentPlan === 'None' ? 'Subscribe' : 'Upgrade'}
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      {processingPayment ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          {plan.price === 0 ? 'Current Plan' : 'Subscribe Now'}
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
@@ -306,7 +404,7 @@ export default function BillingPage() {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-4 px-6 font-semibold text-gray-900">Feature</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-900">Base</th>
+                    <th className="text-center py-4 px-6 font-semibold text-gray-900">Free</th>
                     <th className="text-center py-4 px-6 font-semibold text-gray-900">Silver</th>
                     <th className="text-center py-4 px-6 font-semibold text-gray-900">Gold</th>
                     <th className="text-center py-4 px-6 font-semibold text-gray-900">Platinum</th>
@@ -315,7 +413,7 @@ export default function BillingPage() {
                 <tbody className="divide-y divide-gray-200">
                   <tr>
                     <td className="py-4 px-6 font-medium">Interviews per month</td>
-                    <td className="text-center py-4 px-6">10</td>
+                    <td className="text-center py-4 px-6">1</td>
                     <td className="text-center py-4 px-6">50</td>
                     <td className="text-center py-4 px-6">200</td>
                     <td className="text-center py-4 px-6">Unlimited</td>
@@ -370,15 +468,15 @@ export default function BillingPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Can I change my plan anytime?</h4>
-                <p className="text-gray-600 text-sm">Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.</p>
+                <p className="text-gray-600 text-sm">Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected immediately.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Is there a free trial?</h4>
-                <p className="text-gray-600 text-sm">Yes, we offer a 14-day free trial on all plans. No credit card required to start.</p>
+                <p className="text-gray-600 text-sm">Yes, we offer a free plan that allows you to create 1 interview to test our platform.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">What payment methods do you accept?</h4>
-                <p className="text-gray-600 text-sm">We accept all major credit cards, PayPal, and bank transfers for annual plans.</p>
+                <p className="text-gray-600 text-sm">We accept all major credit cards, debit cards, UPI, net banking, and digital wallets through Razorpay.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Can I cancel anytime?</h4>

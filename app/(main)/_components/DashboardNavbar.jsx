@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@/app/provider';
 import Image from 'next/image';
-import { Bell, Settings, LogOut, User } from 'lucide-react';
+import { Bell, LogOut, User } from 'lucide-react';
 import { supabase } from '@/services/supabaseClient';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -86,19 +86,6 @@ export default function DashboardNavbar() {
             {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                <Link href="/profile">
-                  <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50">
-                    <User className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm text-gray-700">Profile</span>
-                  </div>
-                </Link>
-                <Link href="/settings">
-                  <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50">
-                    <Settings className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm text-gray-700">Settings</span>
-                  </div>
-                </Link>
-                <hr className="my-2" />
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-2 hover:bg-red-50 w-full text-left"

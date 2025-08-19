@@ -26,7 +26,7 @@ console.log(FINAL_PROMPT);
     messages: [
       { role: "user", content: FINAL_PROMPT }
     ],
-    // response_format:'json'
+    response_format: { type: "json_object" }
   })
 //   console.log(completion.choices[0].message)
   return NextResponse.json({ content: completion.choices[0].message.content })

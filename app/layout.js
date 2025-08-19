@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 import Navbar from "./_components/navbar/Navbar";
 import Provider from "./provider";
-
+import AdvancedPageLoader from "@/components/ui/advanced-page-loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,11 +33,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        
       >
-     
-  
-        {children}
+        <AdvancedPageLoader>
+          {children}
+        </AdvancedPageLoader>
         {/* <Toaster/> */}
         <Toaster
         position="top-center"
@@ -50,7 +49,6 @@ export default function RootLayout({ children }) {
           },
         }}
       />
-      
       </body>
     </html>
   );

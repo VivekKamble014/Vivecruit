@@ -26,22 +26,50 @@ const GenerateQuestionList= async()=>{
   const result=await axios.post('/api/ai-model',{
     ...formData
   })
-  console.log(result.data.content);
+  console.log("API Response:", result.data);
 
-  const Content=result.data.content;
+  // Check for API errors
+  if (result.data?.error) {
+    console.error("API Error:", result.data.error);
+    toast.error(result.data.error);
+    setLoading(false);
+    return;
+  }
+
+  const Content = result.data?.content;
+  console.log("Content:", Content);
+  
+  if (!Content) {
+    console.error("No content received from API");
+    toast.error('No questions generated. Please try again.');
+    setLoading(false);
+    return;
+  }
+
   // const FINAL_JSON=Content.replace('"```json','').replace('```','')
   const FINAL_JSON = Content.replace(/```json|```/g, '').trim();
+  console.log("FINAL_JSON:", FINAL_JSON);
 
   // setQuestionList(JSON.parse(FINAL_JSON)?.interviewQuestions);
   const parsed = JSON.parse(FINAL_JSON);
-  setQuestionList(parsed?.interviewQuestions);
+  console.log("Parsed data:", parsed);
+  setQuestionList(parsed?.interviewQuestions || []);
 
 
   setLoading(false);
 
 }catch(e){
-  toast('Server Error Try Again ...!')
   console.log("Error from QL", e)
+  
+  // Handle specific error types
+  if (e.response?.status === 429) {
+    toast.error('Rate limit exceeded. Please wait a few minutes and try again.');
+  } else if (e.response?.data?.error) {
+    toast.error(e.response.data.error);
+  } else {
+    toast.error('Server Error. Please try again.');
+  }
+  
   setLoading(false);
 }
 }
@@ -102,6 +130,21 @@ const onFinish=async()=>{
       </div>
     </div>
   )}
+  
+  {!loading && !questionList?.length && (
+    <div className="p-8 bg-red-50 rounded-2xl border border-red-500 flex flex-col items-center gap-4">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-red-800">Failed to Generate Questions</h2>
+        <p className="text-lg text-red-600 mb-4">There was an issue generating your interview questions.</p>
+        <button 
+          onClick={GenerateQuestionList}
+          className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  )}
   {questionList?.length > 0 && (
     <div>
     <QuestionListContainer questionList={questionList}/>
@@ -109,7 +152,7 @@ const onFinish=async()=>{
 )}
 
 <div className='flex justify-end mt-10' >
-  <Button onClick={()=>onFinish()} disable={saveLoading}>
+  <Button onClick={()=>onFinish()} disabled={saveLoading}>
   {saveLoading && <Loader2 className='animate-spin'/>}
   Create Interview Link & Finish</Button>
 </div>

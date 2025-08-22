@@ -1,6 +1,9 @@
 ---- creating next app: ----
 command : npx create-next-app@latest
 
+
+
+
 Details : and use following setting 
 • What is your project named? ... vivecruit
 • Would you like to use TypeScript? ... No / Yes

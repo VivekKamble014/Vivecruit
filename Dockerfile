@@ -12,4 +12,4 @@ COPY . .
 EXPOSE 5010
 
 
-CMD ["npm", "start"]
+CMD ["npm", "run dev"]

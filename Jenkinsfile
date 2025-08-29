@@ -54,6 +54,19 @@ spec:
         }
     }
 
+    environment {
+        # Supabase environment variables stored in Jenkins credentials
+        NEXT_PUBLIC_SUPABASE_URL       = credentials('supabase-url')
+        NEXT_PUBLIC_SUPABASE_ANON_KEY  = credentials('supabase-anon')
+        SUPABASE_SERVICE_ROLE_KEY       = credentials('supabase-service-role')
+        
+        # Docker/Nexus registry
+        NEXUS_HOST = '127.0.0.1:5000'
+        NEXUS_REPO = 'my-repository'
+        IMAGE_NAME = 'interview-questions-app'
+        IMAGE_TAG  = 'v1'
+    }
+
     stages {
         stage('Install & Test') {
             steps {
@@ -70,7 +83,7 @@ spec:
         stage('SonarQube Analysis') {
             steps {
                 container('sonar-scanner') {
-                    withCredentials([string(credentialsId: 'sonar-token-2401199', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'sonarqube-2401096', variable: 'SONAR_TOKEN')]) {
                         sh '''
                             sonar-scanner \
                                 -Dsonar.projectKey=2401199_interview-questions-app \

@@ -56,9 +56,9 @@ spec:
 
     environment {
         //Supabase environment variables stored in Jenkins credentials
-        NEXT_PUBLIC_SUPABASE_URL       = credentials('supabase-url')
-        NEXT_PUBLIC_SUPABASE_ANON_KEY  = credentials('supabase-anon')
-        SUPABASE_SERVICE_ROLE_KEY       = credentials('supabase-service-role')
+        NEXT_PUBLIC_SUPABASE_URL       = credentials('https://wsqpktegaercmtvlfadx.supabase.co')
+        NEXT_PUBLIC_SUPABASE_ANON_KEY  = credentials('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzcXBrdGVnYWVyY210dmxmYWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwNzg0NzksImV4cCI6MjA2OTY1NDQ3OX0.4islstT4cwJPYP8Tteo2qgS77FztogxUO1EGdk8o1EU')
+        SUPABASE_SERVICE_ROLE_KEY       = credentials('700899a8-bae6-4538-bf87-4817245fb314')
         
         //Docker/Nexus registry
         NEXUS_HOST = '127.0.0.1:5000'
